@@ -13,6 +13,7 @@ public class MoveCam : MonoBehaviour
     public Image imgIntro;
     public Text txtIntro;
     public AudioSource frein;
+    public AudioSource changementDirection;
     public Canvas outro;
     public Image fondOutro;
     public Text auteurOutro;
@@ -22,11 +23,14 @@ public class MoveCam : MonoBehaviour
     // Variables qui nous servent dans le script
     private bool freinIsPlayed;
     private bool playScene;
+    private bool goVertical;
     private Vector3 direction;
     private float alpha;
     private float alphaOutro;
     private int toursTerre;
     private float valeurAnglePrec;
+    private float valeurCercleAutourTerre;
+    private float temps;
 
     // Start is called before the first frame update
 
@@ -38,8 +42,10 @@ public class MoveCam : MonoBehaviour
         alphaOutro = 0.0f;
         freinIsPlayed = false;
         toursTerre = 0;
-        valeurAnglePrec = -3.0f;
+        valeurAnglePrec = 0.0f;
         playScene = false;
+        valeurCercleAutourTerre = 0.0f;
+        goVertical = false;
     }
 
     // Update is called once per frame
@@ -64,32 +70,66 @@ public class MoveCam : MonoBehaviour
         }
         if (playScene) // Jouer la scène principale
         {
-            if (transform.position.z < 7.5) // Rapprocher la caméra de la terre
+            if (transform.position.z < -2.0f) // Rapprocher la caméra de la terre
             {
                 direction = new Vector3(0f, 0f, Mathf.Exp(-0.005f * transform.position.z)); // Approcher de la Terre avec une exponentielle pour faire un effet de frein
                 transform.Translate(direction * Time.deltaTime); // Faire avancer la caméra
-                if (transform.position.z>5.0 && freinIsPlayed==false) // Jouer un son de crissement de pneu quand on arrive sur la terre pour plus de réalisme
+                if (transform.position.z>-5.0f && freinIsPlayed==false) // Jouer un son de crissement de pneu quand on arrive sur la terre pour plus de réalisme
                 {
                     freinIsPlayed = true;
                     frein.PlayOneShot(frein.clip);
                 }
+                if (transform.position.z >= -2.0f)
+                {
+                    valeurCercleAutourTerre = transform.position.z;
+                }
             }
-            else // Une fois assez proche de la terre on arrête de deplacer la caméra 
+            else if (goVertical == false) 
+            { 
+                transform.Rotate(new Vector3(0.0f, 0.25f, 0.0f));
+                // On vérifie qu'on passe par 0 pour etre pouvoir compter un tour en plus
+                if (valeurAnglePrec<0 && valeurAnglePrec+0.25f>=0)
+                {
+                    temps = Time.time;
+                    toursTerre++;
+                    goVertical = true;
+                    valeurAnglePrec = 0.0f;
+                    changementDirection.PlayOneShot(changementDirection.clip);
+                }
+                valeurAnglePrec += 0.25f;
+                if (valeurAnglePrec >= 180.0f)
+                {
+                    valeurAnglePrec = -180.0f;
+                }
+                
+                /*
+                // Debug
+                print(transform.rotation.y);
+                print(Mathf.Cos(valeurAnglePrec*Mathf.Deg2Rad));
+                print(Mathf.Sin(valeurAnglePrec*Mathf.Deg2Rad));
+                */
+                transform.position = new Vector3(valeurCercleAutourTerre * Mathf.Sin(valeurAnglePrec * Mathf.Deg2Rad), 1.0f, valeurCercleAutourTerre * Mathf.Cos(valeurAnglePrec * Mathf.Deg2Rad));
+            }
+            else
             {
-                if ((Earth.transform.rotation.y>=0 && valeurAnglePrec<0) || (Earth.transform.rotation.y <= 0 && valeurAnglePrec > 0)) // Quand la terre à fait un tour sur elle même
+                if (Time.time - temps > 5.0f)
                 {
-                    toursTerre += 1;
-                    print(toursTerre);
-                }
-                valeurAnglePrec = Earth.transform.rotation.y;
-                if (toursTerre == 2)
-                {
-                    playScene = false;
+                    transform.Rotate(new Vector3(0.25f, 0.0f, 0.0f));
+                    if (valeurAnglePrec < 0 && valeurAnglePrec + 0.25f >= 0)
+                    {
+                        toursTerre++;
+                    }
+                    valeurAnglePrec += 0.25f;
+                    if (valeurAnglePrec >= 180.0f)
+                    {
+                        valeurAnglePrec = -180.0f;
+                    }
+                    transform.position = new Vector3(0.0f, 1.0f + (valeurCercleAutourTerre * Mathf.Sin(-valeurAnglePrec * Mathf.Deg2Rad)), valeurCercleAutourTerre * Mathf.Cos(-valeurAnglePrec * Mathf.Deg2Rad));
                 }
             }
-            //transform.LookAt(Earth.transform);
+                
         }
-        if (toursTerre == 2) // Quand la terre à fait deux tour sur elle même aprés que la camèra ait arrété de bouger
+        if (toursTerre == 2) // Qunad on a fait deux fois le tour de la terre
         {
             // On ne désactive pas la scène principale pour continuer à avoir la musique de fond
             // Lancer la transition vers l'outro de la même manière qu'avec l'intro c'est-à-dire avec une transparence
