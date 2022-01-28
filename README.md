@@ -7,7 +7,8 @@ Films d'animation que je réalise
 
 Projet Unity créer sour unity 2020.3.24f1
 
-Ce film représente la terre qui tourne sur elle-même. La caméra tourne autour de la terre pour en montrer les recoins.
+Ce film représenté à la base la terre qui tourne sur elle-même. La caméra tourne autour de la terre pour en montrer les recoins.
+Mais cela va représenter plus tard le système solaire.
 
 Rendu des vidéos en 2K :
 
