@@ -1,0 +1,6 @@
+- Ajouter la lune
+- Implémenter la rotation de la terre autour du soleil
+- Implémenter la rotation du soleil sur lui-même
+- Ajouter d'autres planètes (Mars, Venus, Jupiter...)
+- En faire potentiellement un film avec un ovni
+- En faire un jeu d'exploration du système solaire 

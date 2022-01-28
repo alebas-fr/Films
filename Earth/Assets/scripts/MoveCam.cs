@@ -70,18 +70,18 @@ public class MoveCam : MonoBehaviour
         }
         if (playScene) // Jouer la scène principale
         {
-            if (transform.position.z < -2.0f) // Rapprocher la caméra de la terre
+            if (transform.position.z < 48.0f) // Rapprocher la caméra de la terre
             {
                 direction = new Vector3(0f, 0f, Mathf.Exp(-0.005f * transform.position.z)); // Approcher de la Terre avec une exponentielle pour faire un effet de frein
                 transform.Translate(direction * Time.deltaTime); // Faire avancer la caméra
-                if (transform.position.z>-5.0f && freinIsPlayed==false) // Jouer un son de crissement de pneu quand on arrive sur la terre pour plus de réalisme
+                if (transform.position.z>45.0f && freinIsPlayed==false) // Jouer un son de crissement de pneu quand on arrive sur la terre pour plus de réalisme
                 {
                     freinIsPlayed = true;
                     frein.PlayOneShot(frein.clip);
                 }
                 if (transform.position.z >= -2.0f)
                 {
-                    valeurCercleAutourTerre = transform.position.z;
+                    valeurCercleAutourTerre = transform.position.z - Earth.transform.position.z;
                 }
             }
             else if (goVertical == false) 
@@ -108,7 +108,7 @@ public class MoveCam : MonoBehaviour
                 print(Mathf.Cos(valeurAnglePrec*Mathf.Deg2Rad));
                 print(Mathf.Sin(valeurAnglePrec*Mathf.Deg2Rad));
                 */
-                transform.position = new Vector3(valeurCercleAutourTerre * Mathf.Sin(valeurAnglePrec * Mathf.Deg2Rad), 1.0f, valeurCercleAutourTerre * Mathf.Cos(valeurAnglePrec * Mathf.Deg2Rad));
+                transform.position = new Vector3(Earth.transform.position.x + valeurCercleAutourTerre * Mathf.Sin(valeurAnglePrec * Mathf.Deg2Rad), Earth.transform.position.y, Earth.transform.position.z + valeurCercleAutourTerre * Mathf.Cos(valeurAnglePrec * Mathf.Deg2Rad));
             }
             else
             {
@@ -124,7 +124,7 @@ public class MoveCam : MonoBehaviour
                     {
                         valeurAnglePrec = -180.0f;
                     }
-                    transform.position = new Vector3(0.0f, 1.0f + (valeurCercleAutourTerre * Mathf.Sin(-valeurAnglePrec * Mathf.Deg2Rad)), valeurCercleAutourTerre * Mathf.Cos(-valeurAnglePrec * Mathf.Deg2Rad));
+                    transform.position = new Vector3(Earth.transform.position.x, Earth.transform.position.y + (valeurCercleAutourTerre * Mathf.Sin(-valeurAnglePrec * Mathf.Deg2Rad)), Earth.transform.position.z + valeurCercleAutourTerre * Mathf.Cos(-valeurAnglePrec * Mathf.Deg2Rad));
                 }
             }
                 
